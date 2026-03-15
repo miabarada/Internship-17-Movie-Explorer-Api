@@ -2,12 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Movie } from './entities/movie.entity';
+
+interface FindAllQuery {
+  search?: string;
+  sort?: string;
+  genre?: string;
+}
 
 @Injectable()
 export class MovieService {
   constructor(private prisma: PrismaService) {}
 
-  create(createMovieDto: CreateMovieDto) {
+  create(createMovieDto: CreateMovieDto): Promise<Movie> {
     const { genreIds, ...movieData } = createMovieDto;
 
     return this.prisma.movie.create({
@@ -17,23 +24,29 @@ export class MovieService {
           connect: genreIds.map(id => ({ id })),
         },
       },
+      include: { genres: true },
     });
   }
 
-  findAll() {
+  findAll(query: FindAllQuery) {
+    const { search, sort, genre } = query;
+
     return this.prisma.movie.findMany({
-      include: {
-        genres: true,
+      where: {
+        title: search ? { contains: search, mode: 'insensitive' } : undefined,
+        genres: genre
+          ? { some: { name: { equals: genre, mode: 'insensitive' } } }
+          : undefined,
       },
+      include: { genres: true },
+      orderBy: sort ? { [sort]: 'desc' } : undefined,
     });
   }
 
   findOne(id: number) {
     return this.prisma.movie.findUnique({
       where: { id },
-      include: {
-        genres: true,
-      },
+      include: { genres: true },
     });
   }
 
@@ -50,6 +63,7 @@ export class MovieService {
           },
         }),
       },
+      include: { genres: true },
     });
   }
 

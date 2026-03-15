@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
@@ -16,9 +16,13 @@ export class MovieController {
   }
 
   @Get()
-  @ApiOkResponse({ description: 'All movies fetched', type: Movie, isArray: true })
-  findAll() {
-    return this.movieService.findAll();
+  @ApiOkResponse({ type: Movie, isArray: true, description: 'All movies fetched with optional search, sort, genre filter' })
+  findAll(
+    @Query('search') search?: string,
+    @Query('sort') sort?: string,
+    @Query('genre') genre?: string
+  ) {
+    return this.movieService.findAll({ search, sort, genre });
   }
 
   @Get(':id')
