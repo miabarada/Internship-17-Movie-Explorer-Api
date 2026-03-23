@@ -199,9 +199,6 @@ async function main() {
     }
   });
 
-  await prisma.favorite.upsert({ where: { id: 1 }, update: {}, create: { movieId: goodWill.id } });
-  await prisma.favorite.upsert({ where: { id: 2 }, update: {}, create: { movieId: pulpFiction.id } });
-
   console.log('Seed successful!');
 }
 

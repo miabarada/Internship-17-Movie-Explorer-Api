@@ -31,16 +31,19 @@ export class FavoritesService {
   }
 
   async remove(id: number, userId: number) {
-    const favorite = await this.prisma.favorite.findUnique({
-      where: { id }
+    const favorite = await this.prisma.favorite.findFirst({
+      where: { 
+        userId: userId,
+        movieId: id
+       }
     });
 
-    if (!favorite || favorite.userId !== userId) {
+    if (!favorite) {
       throw new BadRequestException("Favorite not found or you don't have permission to delete it");
     }
 
     return this.prisma.favorite.delete({
-      where: { id }
+      where: { id: favorite.id }
     });
   }
 }

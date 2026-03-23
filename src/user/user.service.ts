@@ -39,7 +39,13 @@ export class UserService {
       role: 'user'
     }
 
-    return {token: this.jwtService.sign(payload)}
+    return {
+      token: this.jwtService.sign(payload),
+      user: {
+        email: user.email,
+        isAdmin: user.isAdmin
+      }
+    }
   }
 
   async login (email: string, password: string) {
@@ -69,6 +75,12 @@ export class UserService {
       role: user.isAdmin ? 'admin' : 'user'
     }
 
-    return {token: this.jwtService.sign(payload)}
+    return {
+      token: this.jwtService.sign(payload),
+      user: {
+        email: user.email,
+        isAdmin: user.isAdmin
+      }
+    }
   }
 }
