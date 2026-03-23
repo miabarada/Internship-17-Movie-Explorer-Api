@@ -5,9 +5,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { MovieModule } from './movies/movie.module';
 import { GenresModule } from './genres/genres.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { UserModule } from './user/user.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [PrismaModule, MovieModule, GenresModule, FavoritesModule],
+  imports: [PrismaModule, MovieModule, GenresModule, FavoritesModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
