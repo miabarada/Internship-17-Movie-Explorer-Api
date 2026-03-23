@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs'
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -32,6 +32,36 @@ export class UserService {
         password: hashedPassword
       }
     })
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: 'user'
+    }
+
+    return {token: this.jwtService.sign(payload)}
+  }
+
+  async login (email: string, password: string) {
+    if(!email)
+      throw new BadRequestException("Missing 'email' field")
+
+    if(!password)
+      throw new BadRequestException("Missing 'password' field")
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user)
+      throw new BadRequestException("User does not exist")
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid)
+      throw new ForbiddenException('Password not valid!')
 
     const payload = {
       id: user.id,
