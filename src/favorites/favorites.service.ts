@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,23 +7,38 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class FavoritesService {
   constructor(private prisma: PrismaService) {}
 
-  create(createFavoriteDto: CreateFavoriteDto) {
+  async create(createFavoriteDto: CreateFavoriteDto, userId: number) {
+    const existing = await this.prisma.favorite.findFirst({
+      where: { userId, movieId: createFavoriteDto.movieId }
+    })
+
+    if (existing)
+      throw new BadRequestException('Movie already in favorites')
+
     return this.prisma.favorite.create({
       data: {
-        movieId: createFavoriteDto.movieId
+        movieId: createFavoriteDto.movieId,
+        userId: userId
       }
     });
   }
 
-  findAll() {
+  findAll(userId: number) {
     return this.prisma.favorite.findMany({
-      include: {
-        movie: true
-      }
+      where: { userId },
+      include: { movie: true }
     });
   }
 
-  remove(id: number) {
+  async remove(id: number, userId: number) {
+    const favorite = await this.prisma.favorite.findUnique({
+      where: { id }
+    });
+
+    if (!favorite || favorite.userId !== userId) {
+      throw new BadRequestException("Favorite not found or you don't have permission to delete it");
+    }
+
     return this.prisma.favorite.delete({
       where: { id }
     });

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Movie } from './entities/movie.entity';
+import { AdminAuthGuard } from 'src/user/admin-auth.guard';
 
 @Controller('movies')
 export class MovieController {
@@ -11,6 +12,7 @@ export class MovieController {
 
   @Post()
   @ApiCreatedResponse({ description: 'New movie created', type: Movie })
+  @UseGuards(AdminAuthGuard)
   create(@Body() createMovieDto: CreateMovieDto) {
     return this.movieService.create(createMovieDto);
   }
@@ -33,6 +35,7 @@ export class MovieController {
 
   @Patch(':id')
   @ApiOkResponse({ description: 'Movie updated', type: Movie })
+  @UseGuards(AdminAuthGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateMovieDto: UpdateMovieDto
@@ -42,6 +45,7 @@ export class MovieController {
 
   @Delete(':id')
   @ApiOkResponse({ description: 'Movie deleted' })
+  @UseGuards(AdminAuthGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.movieService.remove(id);
   }
