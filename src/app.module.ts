@@ -6,10 +6,10 @@ import { MovieModule } from './movies/movie.module';
 import { GenresModule } from './genres/genres.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { UserModule } from './user/user.module';
-import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PrismaModule, MovieModule, GenresModule, FavoritesModule, UserModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, MovieModule, GenresModule, FavoritesModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
